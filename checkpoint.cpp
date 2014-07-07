@@ -19,6 +19,7 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/Instructions.h"      // CallInst
 #include "llvm/Support/InstIterator.h" // inst_iterator, methods on I and E
+#include "llvm/Support/Debug.h"        // DEBUG(), bdgs()
 #include "llvm/IR/Module.h"            // getOrInsertFunction
 using namespace llvm;
 
@@ -62,6 +63,7 @@ namespace {
 
     virtual bool runOnFunction(Function &F) {
       if (F.hasInternalLinkage()) return false;                               // only instrument functions present in the source.
+      DEBUG(dbgs() << "Adding checkpoints to " << F.getName() << "\n");       // conditionally included on debug builds
       insertAtEntryAndReturn(F, checkpoint_func, checkpoint_func);            // insert calls to checkpoint function
       return true;                                                            // we modified the program
     }
@@ -71,6 +73,7 @@ namespace {
       Function* main = M.getFunction("main");                                 // get the main function
       if (!main) return false;                                                // this module doesn't have the main function
       errs() << "FOUND MAIN\n";
+      DEBUG(dbgs() << "Adding init/deinit to " << main->getName() << "\n");   // conditionally included on debug build
       insertAtEntryAndReturn(*main, init_func, deinit_func);                  // insert init and deinit calls
       return true;                                                            // we modified the program
     }
