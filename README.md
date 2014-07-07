@@ -1,29 +1,13 @@
-# README #
+# Checkpoint #
 
-This README would normally document whatever steps are necessary to get your application up and running.
+This is a pass for LLVM that instruments LLVM code with checkpoints for measuring runtime.  The goal is to provide on-line profiling for runtime analysis of the client.
 
-### What is this repository for? ###
+### Usage ###
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+Consult the LLVM docs to get up and running with compiling LLVM passes.  This pass compiles using the same steps presented in the "Hello World" example.
 
-### How do I get set up? ###
+### Contact ###
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+gland at seas dot upenn dot edu
 
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+feel free to contact me with questions.
