@@ -3,13 +3,14 @@
 // This file is distributed under the University of Illinois Open Source
 // License. See LICENSE.TXT for details.
 
-// Right now we assume this pass runs on modules containing only one function with a single integer argument
+// Right now we assume this pass runs on modules containing only one function with a single integer argument, no wider than 64 bits.
 #define DEBUG_TYPE "makecalls"
 //#include "llvm/ADT/Statistic.h" for adding statistic counters
 #include "llvm/IR/Function.h"
 #include "llvm/Pass.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/Module.h"
+#include "llvm/IR/IRBuilder.h" // IRBuilder, CreateCall
 #include <cassert> // assert
 #include <cmath> // exp2
 using namespace llvm;
@@ -35,9 +36,20 @@ namespace {
       
       // generate call parameters
       const unsigned bit_width = input_type->getIntegerBitWidth(); // find the size of the argument so we know what range we can apply
-      const uint64_t distribution = (uint64_t)((exp2(bit_width)-1) / numcalls); // find the max value that fits into the argument
+      assert(bit_width <= 64 && "Bit width is greater than 64 bits.\n");
+      const unsigned distribution = (unsigned)((exp2(bit_width)-1) / numcalls); // find the max value that fits into the argument
+      unsigned parameter_values[numcalls]; // array holding arguments to function calls
+      for (unsigned i = 0; i < numcalls; i++) // initialize the array with even distribution of arguments
+        parameter_values[i] = i * distribution;
+
       // create main function for calls
+      Constant * main = M.getOrInsertFunction("main", FunctionType::get(Type::getInt32Ty(M.getContext()), false)); // main has name 'main', returns 32bit int, and is not vararg
+      BasicBlock * block = BasicBlock::Create(M.getContext(), "entry", cast<Function>(main)); // create basic block for insns and add to main
+      IRBuilder<> builder(block); // IRBuilder is a convenience for adding insns to basic block
+
       // add calls to basic block, add basic block to main function
+      for (unsigned i = 0; i < numcalls; i++)
+        builder.CreateCall(function, ConstantInt::get(input_type, parameter_values[i]), "call");
       return true;                                                            // we modified the program
     }
   };
