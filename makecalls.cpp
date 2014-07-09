@@ -27,7 +27,7 @@ namespace {
     virtual bool runOnModule(Module &M) {
       // get function and types of parameters
       Module::iterator function = M.begin();                                                                        // get function
-      assert(function == M.end() && "More than one function in this module.\n");                                    // only support one function per module
+      assert(M.getFunctionList().size() == 1 && "More than one function in this module.\n");                        // only support one function per module
       assert(function->doesNotThrow() && "Can't work with functions that use exceptions.\n");                       // only support functions that don't unwind
       Function::ArgumentListType& arguments = function->getArgumentList();                                          // get arguments
       assert(arguments.size() == 1 && "Function has more than one parameter.\n");                                   // only support functions with one argument
