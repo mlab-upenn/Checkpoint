@@ -11,6 +11,7 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/IRBuilder.h" // IRBuilder, CreateCall
+//#include "llvm/Support/Debug.h" // DEBUG() macro, executed when opt is given -debug option
 #include <cassert> // assert
 #include <cmath> // exp2
 using namespace llvm;
