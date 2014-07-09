@@ -25,30 +25,30 @@ namespace {
     
     virtual bool runOnModule(Module &M) {
       // get function and types of parameters
-      Module::iterator function = M.begin(); // get function
-      assert(function == M.end() && "More than one function in this module.\n"); // only support one function per module
-      assert(function->doesNotThrow() && "Can't work with functions that use exceptions.\n"); // only support functions that don't unwind
-      Function::ArgumentListType& arguments = function->getArgumentList(); // get arguments
-      assert(arguments.size() == 1 && "Function has more than one parameter.\n"); // only support functions with one argument
-      Argument& func_input = arguments.front(); // get argument to modulate
-      Type* input_type = func_input.getType(); // get the type of the argument
-      assert(input_type->isIntegerTy() && "Input parameter is not an integer.\n"); // only support functions with integer argument
+      Module::iterator function = M.begin();                                                                        // get function
+      assert(function == M.end() && "More than one function in this module.\n");                                    // only support one function per module
+      assert(function->doesNotThrow() && "Can't work with functions that use exceptions.\n");                       // only support functions that don't unwind
+      Function::ArgumentListType& arguments = function->getArgumentList();                                          // get arguments
+      assert(arguments.size() == 1 && "Function has more than one parameter.\n");                                   // only support functions with one argument
+      Argument& func_input = arguments.front();                                                                     // get argument to modulate
+      Type* input_type = func_input.getType();                                                                      // get the type of the argument
+      assert(input_type->isIntegerTy() && "Input parameter is not an integer.\n");                                  // only support functions with integer argument
       
       // generate call parameters
-      const unsigned bit_width = input_type->getIntegerBitWidth(); // find the size of the argument so we know what range we can apply
+      const unsigned bit_width = input_type->getIntegerBitWidth();                                                  // find the size of the argument so we know what range we can apply
       assert(bit_width <= 64 && "Bit width is greater than 64 bits.\n");
-      const unsigned distribution = (unsigned)((exp2(bit_width)-1) / numcalls); // find the max value that fits into the argument
-      unsigned parameter_values[numcalls]; // array holding arguments to function calls
-      for (unsigned i = 0; i < numcalls; i++) // initialize the array with even distribution of arguments
+      const unsigned distribution = (unsigned)((exp2(bit_width)-1) / numcalls);                                     // find the max value that fits into the argument
+      unsigned parameter_values[numcalls];                                                                          // array holding arguments to function calls
+      for (unsigned i = 0; i < numcalls; i++)                                                                       // initialize the array with even distribution of arguments
         parameter_values[i] = i * distribution;
 
       // create main function and add calls
-      Constant * main = M.getOrInsertFunction("main", FunctionType::get(Type::getInt32Ty(M.getContext()), false)); // main has name 'main', returns 32bit int, and is not vararg
-      BasicBlock * block = BasicBlock::Create(M.getContext(), "entry", cast<Function>(main)); // create basic block for insns and add to main
-      IRBuilder<> builder(block); // IRBuilder is a convenience for adding insns to basic block
+      Constant * main = M.getOrInsertFunction("main", FunctionType::get(Type::getInt32Ty(M.getContext()), false));  // main has name 'main', returns 32bit int, and is not vararg
+      BasicBlock * block = BasicBlock::Create(M.getContext(), "entry", cast<Function>(main));                       // create basic block for insns and add to main
+      IRBuilder<> builder(block);                                                                                   // IRBuilder is a convenience for adding insns to basic block
       for (unsigned i = 0; i < numcalls; i++)
-        builder.CreateCall(function, ConstantInt::get(input_type, parameter_values[i]), "call"); // add call to basic block
-      return true;                                                            // we modified the program
+        builder.CreateCall(function, ConstantInt::get(input_type, parameter_values[i]), "call");                    // add call to basic block
+      return true;                                                                                                  // we modified the program
     }
   };
 }
