@@ -48,6 +48,7 @@ namespace {
       IRBuilder<> builder(block);                                                                                   // IRBuilder is a convenience for adding insns to basic block
       for (unsigned i = 0; i < numcalls; i++)
         builder.CreateCall(function, ConstantInt::get(input_type, parameter_values[i]), "call");                    // add call to basic block
+      builder.CreateRet(ConstantInt::get(Type::getInt32Ty(M.getContext()), 0));                                     // create return instruction
       return true;                                                                                                  // we modified the program
     }
   };
