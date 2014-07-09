@@ -42,14 +42,12 @@ namespace {
       for (unsigned i = 0; i < numcalls; i++) // initialize the array with even distribution of arguments
         parameter_values[i] = i * distribution;
 
-      // create main function for calls
+      // create main function and add calls
       Constant * main = M.getOrInsertFunction("main", FunctionType::get(Type::getInt32Ty(M.getContext()), false)); // main has name 'main', returns 32bit int, and is not vararg
       BasicBlock * block = BasicBlock::Create(M.getContext(), "entry", cast<Function>(main)); // create basic block for insns and add to main
       IRBuilder<> builder(block); // IRBuilder is a convenience for adding insns to basic block
-
-      // add calls to basic block, add basic block to main function
       for (unsigned i = 0; i < numcalls; i++)
-        builder.CreateCall(function, ConstantInt::get(input_type, parameter_values[i]), "call");
+        builder.CreateCall(function, ConstantInt::get(input_type, parameter_values[i]), "call"); // add call to basic block
       return true;                                                            // we modified the program
     }
   };
