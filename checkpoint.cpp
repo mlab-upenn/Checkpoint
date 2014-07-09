@@ -65,19 +65,10 @@ namespace {
       if (F.hasInternalLinkage()) return false;                               // only instrument functions present in the source.
       DEBUG(dbgs() << "Adding checkpoints to " << F.getName() << "\n");       // conditionally included on debug builds
       insertAtEntryAndReturn(F, checkpoint_func, checkpoint_func);            // insert calls to checkpoint function
+      if (F.getName() == "main")                                              // if this is the main function ...
+        insertAtEntryAndReturn(F, init_func, deinit_func);                    // then also add init and deinit
       return true;                                                            // we modified the program
     }
-
-    // adds initialize and print_results calls to main
-    virtual bool doFinalization(Module &M) {
-      Function* main = M.getFunction("main");                                 // get the main function
-      if (!main) return false;                                                // this module doesn't have the main function
-      errs() << "FOUND MAIN\n";
-      DEBUG(dbgs() << "Adding init/deinit to " << main->getName() << "\n");   // conditionally included on debug build
-      insertAtEntryAndReturn(*main, init_func, deinit_func);                  // insert init and deinit calls
-      return true;                                                            // we modified the program
-    }
-
   };
 }
 
