@@ -31,7 +31,9 @@ namespace {
 
   public: 
     static char ID; // Pass identification, replacement for typeid
-    Checkpoint() : FunctionPass(ID) {}
+    Checkpoint() : FunctionPass(ID) {
+      initializeCheckpointPass(*PassRegistry::getPassRegistry());
+    }
 
     // makes sure there are declarations for the profiling calls in this module
     virtual bool doInitialization(Module & M) {
@@ -73,4 +75,8 @@ namespace {
 }
 
 char Checkpoint::ID = 0;
-static RegisterPass<Checkpoint> X("checkpoint", "checkpoint instrumentation for runtime profiling");
+INITIALIZE_PASS(Checkpoint, "checkpoint", "checkpoint instrumentation for runtime profiling", true, false);
+
+FunctionPass* llvm::createCheckpointPass() {
+  return new Checkpoint();
+}

@@ -22,7 +22,9 @@ namespace {
   class Makecalls : public ModulePass {
   public: 
     static char ID; // Pass identification, replacement for typeid
-    Makecalls() : ModulePass(ID) {}
+    Makecalls() : ModulePass(ID) {
+      initializeMakecallsPass(*PassRegistry::getPassRegistry());
+    }
     
     virtual bool runOnModule(Module &M) {
       // get function and types of parameters
@@ -56,4 +58,8 @@ namespace {
 }
 
 char Makecalls::ID = 0;
-static RegisterPass<Makecalls> X("makecalls", "calls defined function many times with different parameters");
+INITIALIZE_PASS(Makecalls, "makecalls", "calls defined function many times with different parameters", true, false);
+
+ModulePass* llvm:createMakecallsPass() {
+  return new Makecalls();
+}
