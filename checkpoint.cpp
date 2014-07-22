@@ -21,6 +21,7 @@
 #include "llvm/Support/InstIterator.h" // inst_iterator, methods on I and E
 #include "llvm/Support/Debug.h"        // DEBUG(), bdgs()
 #include "llvm/IR/Module.h"            // getOrInsertFunction
+#include "llvm/Transforms/Custom.h"    // createCheckpointPass declaration
 using namespace llvm;
 
 namespace {

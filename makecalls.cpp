@@ -11,6 +11,7 @@
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/Module.h"
 #include "llvm/IR/IRBuilder.h" // IRBuilder, CreateCall
+#include "llvm/Transforms/Custom.h" // createMakecallsPass declaration
 //#include "llvm/Support/Debug.h" // DEBUG() macro, executed when opt is given -debug option
 #include <cassert> // assert
 #include <cmath> // exp2
@@ -60,6 +61,6 @@ namespace {
 char Makecalls::ID = 0;
 INITIALIZE_PASS(Makecalls, "makecalls", "calls defined function many times with different parameters", true, false);
 
-ModulePass* llvm:createMakecallsPass() {
+ModulePass* llvm::createMakecallsPass() {
   return new Makecalls();
 }
