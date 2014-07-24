@@ -37,7 +37,7 @@ namespace {
     virtual bool doInitialization(Module & M) {
       // get types for function declaration
       Type* local_void = Type::getVoidTy(M.getContext());                            // get void type
-      Type* string_pointer = Type::Int8PtrTy(M.getContext());                        // get string pointer type
+      Type* string_pointer = Type::getInt8PtrTy(M.getContext());                        // get string pointer type
       auto function_arguments = std::vector<Type*>(2, string_pointer);               // create a list of arguments: 2 string pointers
       FunctionType* void_function_type 
         = FunctionType::get(local_void, ArrayRef<Type*>(), false);                   // get function type for init/deinit calls
