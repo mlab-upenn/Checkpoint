@@ -21,6 +21,7 @@
 #include "llvm/Support/InstIterator.h" // inst_iterator, methods on I and E
 #include "llvm/Support/Debug.h"        // DEBUG(), bdgs()
 #include "llvm/IR/Module.h"            // getOrInsertFunction
+#include "llvm/IR/Constants.h"         // ConstantDataArray, ConstantInt, ConstantExpr
 using namespace llvm;
 
 namespace {
@@ -29,26 +30,40 @@ namespace {
     Constant* init_func;
     Constant* deinit_func;
 
+    Constant* enter_string; // arguments to checkpoint function
+    Constant* exit_string;
+
   public: 
     static char ID; // Pass identification, replacement for typeid
     Checkpoint() : FunctionPass(ID) {}
 
     // makes sure there are declarations for the profiling calls in this module
     virtual bool doInitialization(Module & M) {
+      LLVMContext& Mc = M.getContext(); // get module's LLVMContext
+
       // get types for function declaration
-      Type* local_void = Type::getVoidTy(M.getContext());                            // get void type
-      Type* string_pointer = Type::getInt8PtrTy(M.getContext());                        // get string pointer type
+      Type* local_void = Type::getVoidTy(Mc);                            // get void type
+      Type* string_pointer = Type::getInt8PtrTy(Mc);                        // get string pointer type
       auto function_arguments = std::vector<Type*>(2, string_pointer);               // create a list of arguments: 2 string pointers
       FunctionType* void_function_type 
         = FunctionType::get(local_void, ArrayRef<Type*>(), false);                   // get function type for init/deinit calls
       FunctionType* string_function_type
         = FunctionType::get(local_void, ArrayRef<Type*>(function_arguments), false); // get function type for profiling calls
         
-      
       // insert function declarations
       checkpoint_func = M.getOrInsertFunction("checkpoint", string_function_type);                 // insert function declaration, and save function for CallInst later
       init_func = M.getOrInsertFunction("initialize", void_function_type);
       deinit_func = M.getOrInsertFunction("print_results", void_function_type);
+
+      // initialize enter and exit strings
+      Constant* enter_data = ConstantDataArray::getString(Mc, "Entering "); // get string data
+      Constant* exit_data = ConstantDataArray::getString(Mc, "Exiting ");
+      Constant* zero = ConstantInt::get(IntegerType::get(Mc, 1), 0); // get the zero constant for this module
+      std::vector<Constant*> idx; // holds the offsets for calculating the pointer value to our string data
+      idx.push_back(zero); // two values of 0 give us the first position in the string
+      idx.push_back(zero);
+      enter_string = ConstantExpr::getGetElementPtr(enter_data, idx); // get a pointer to the start of enter string
+      exit_string = ConstantExpr::getGetElementPtr(exit_data, idx); // get a pointer to the start of exit string
       return true;                                                                                 // we modified the program
     }
 
