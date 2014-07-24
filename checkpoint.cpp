@@ -36,11 +36,17 @@ namespace {
     // makes sure there are declarations for the profiling calls in this module
     virtual bool doInitialization(Module & M) {
       // get types for function declaration
-      Type* local_void = Type::getVoidTy(M.getContext());                                          // get void type
-      FunctionType* void_function_type = FunctionType::get(local_void, ArrayRef<Type*>(), false);  // get function type for profiling calls
+      Type* local_void = Type::getVoidTy(M.getContext());                            // get void type
+      Type* string_pointer = Type::Int8PtrTy(M.getContext());                        // get string pointer type
+      auto function_arguments = std::vector<Type*>(2, string_pointer);               // create a list of arguments: 2 string pointers
+      FunctionType* void_function_type 
+        = FunctionType::get(local_void, ArrayRef<Type*>(), false);                   // get function type for init/deinit calls
+      FunctionType* string_function_type
+        = FunctionType::get(local_void, ArrayRef<Type*>(function_arguments), false); // get function type for profiling calls
+        
       
       // insert function declarations
-      checkpoint_func = M.getOrInsertFunction("checkpoint", void_function_type);                   // insert function declaration, and save function for CallInst later
+      checkpoint_func = M.getOrInsertFunction("checkpoint", string_function_type);                 // insert function declaration, and save function for CallInst later
       init_func = M.getOrInsertFunction("initialize", void_function_type);
       deinit_func = M.getOrInsertFunction("print_results", void_function_type);
       return true;                                                                                 // we modified the program
