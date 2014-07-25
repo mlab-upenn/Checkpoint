@@ -32,6 +32,7 @@ namespace {
 
     Constant* enter_string; // arguments to checkpoint function
     Constant* exit_string;
+    std::vector<Constant*> idx; // indexes for getting pointers to data
 
   public: 
     static char ID; // Pass identification, replacement for typeid
@@ -59,7 +60,6 @@ namespace {
       Constant* enter_data = ConstantDataArray::getString(Mc, "Entering "); // get string data
       Constant* exit_data = ConstantDataArray::getString(Mc, "Exiting ");
       Constant* zero = ConstantInt::get(IntegerType::get(Mc, 1), 0); // get the zero constant for this module
-      std::vector<Constant*> idx; // holds the offsets for calculating the pointer value to our string data
       idx.push_back(zero); // two values of 0 give us the first position in the string
       idx.push_back(zero);
       enter_string = ConstantExpr::getGetElementPtr(enter_data, idx); // get a pointer to the start of enter string
@@ -67,27 +67,38 @@ namespace {
       return true;                                                                                 // we modified the program
     }
 
-    // inserts calls to entry_func at the beginning of F and to exit_func before each return
-    bool insertAtEntryAndReturn(Function &F, Constant* entry_func, Constant* exit_func) {
-      // insert at start of function
-      Instruction* first_insn = F.front().getFirstNonPHI();                   // phi nodes never happen at start of function
-      CallInst::Create(entry_func, "", first_insn);                           // add call before the first instruction
-      
-      // insert at return of function
-      for (inst_iterator I = inst_begin(F), E = inst_end(F); I != E; ++I) {   // for each insn in the function
-        ReturnInst* current_insn = dyn_cast<ReturnInst>(&*I);
-        if (!current_insn) continue;                                          // skip this insn if it isn't a return
-        CallInst::Create(exit_func, "", current_insn);                        // otherwise, insert a call before the return
-      }
-      return true;                                                            // we've modified the program 
-    }
-
     virtual bool runOnFunction(Function &F) {
       if (F.hasInternalLinkage()) return false;                               // only instrument functions present in the source.
       DEBUG(dbgs() << "Adding checkpoints to " << F.getName() << "\n");       // conditionally included on debug builds
-      insertAtEntryAndReturn(F, checkpoint_func, checkpoint_func);            // insert calls to checkpoint function
-      if (F.getName() == "main")                                              // if this is the main function ...
-        insertAtEntryAndReturn(F, init_func, deinit_func);                    // then also add init and deinit
+      
+      // make function name string parameter
+      auto fname = F.getName();
+      auto & fctx = F.getContext();
+      Constant* fname_data = ConstantDataArray::getString(fctx, fname);
+      Constant* fname_string = ConstantExpr::getGetElementPtr(fname_data, idx);
+      
+      // get call insertion points
+      Instruction* first_insn = F.front().getFirstNonPHI();                   // get the first instruction of the function
+      std::vector<Instruction*> returns;
+      for (inst_iterator I = inst_begin(F); I != inst_end(F); ++I) {
+        if (isa<ReturnInst>(&*I)) returns.push_back(&*I);                     // fill a vector with all the return instructions
+      }
+      
+      // insert calls
+      CallInst::Create(checkpoint_func,                                       // insert call at start of function
+                      {enter_string, fname_string},
+                      "",
+                      first_insn);
+      if (F.getName() == "main")                                              // if we're in the main function
+        CallInst::Create(init_func, "", first_insn);                          // also insert the init call
+      for (auto ret = returns.begin(); ret != returns.end(); ++ret) {         // for each return instruction
+        CallInst::Create(checkpoint_func,                                     // insert a checkpoint before the return
+                        {exit_string, fname_string},
+                        "",
+                        *ret);
+        if (F.getName() == "main")                                            // if we're in the main function
+          CallInst::Create(deinit_func, "", *ret);                            // also insert a deinit before the return
+      }
       return true;                                                            // we modified the program
     }
   };
