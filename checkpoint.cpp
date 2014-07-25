@@ -7,8 +7,8 @@
 //
 //===----------------------------------------------------------------------===//
 //
-// This file implements two versions of the LLVM "Hello World" pass described
-// in docs/WritingAnLLVMPass.html
+// This file implements automatic calls to a profiling API, for profiling
+// without modifying source code, using alternate runtimes, or sampling
 //
 //===----------------------------------------------------------------------===//
 
