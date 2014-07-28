@@ -23,6 +23,7 @@
 #include "llvm/IR/Module.h"            // getOrInsertFunction
 #include "llvm/IR/Constants.h"         // ConstantDataArray, ConstantInt, ConstantExpr
 #include "llvm/Transforms/Custom.h"    // createCheckpointPass declaration
+#include "llvm/IR/GlobalVariable.h"    // GlobalVariable
 using namespace llvm;
 
 namespace {
@@ -59,14 +60,30 @@ namespace {
       init_func = M.getOrInsertFunction("initialize", void_function_type);
       deinit_func = M.getOrInsertFunction("print_results", void_function_type);
 
-      // initialize enter and exit strings
+      // add enter and exit string globals
       Constant* enter_data = ConstantDataArray::getString(Mc, "Entering "); // get string data
       Constant* exit_data = ConstantDataArray::getString(Mc, "Exiting ");
+      GlobalVariable* enter_var = new GlobalVariable(
+          M,                           // module
+          enter_data->getType(),       // type
+          true,                        // is constant?
+          GlobalValue::PrivateLinkage, // linkage type
+          enter_data,                  // initializer
+          "");                         // name
+      GlobalVariable* exit_var = new GlobalVariable(
+          M,                           // module
+          exit_data->getType(),        // type
+          true,                        // is constant?
+          GlobalValue::PrivateLinkage, // linkage type
+          exit_data,                   // initializer
+          "");                         // name
+
+      // get pointers to strings for parameters to checkpoint calls
       Constant* zero = ConstantInt::get(IntegerType::get(Mc, 1), 0); // get the zero constant for this module
       idx.push_back(zero); // two values of 0 give us the first position in the string
       idx.push_back(zero);
-      enter_string = ConstantExpr::getGetElementPtr(enter_data, idx); // get a pointer to the start of enter string
-      exit_string = ConstantExpr::getGetElementPtr(exit_data, idx); // get a pointer to the start of exit string
+      enter_string = ConstantExpr::getGetElementPtr(enter_var, idx); // get a pointer to the start of enter string
+      exit_string = ConstantExpr::getGetElementPtr(exit_var, idx); // get a pointer to the start of exit string
       return true;                                                                                 // we modified the program
     }
 
