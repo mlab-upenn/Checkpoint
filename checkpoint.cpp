@@ -68,15 +68,13 @@ namespace {
           enter_data->getType(),       // type
           true,                        // is constant?
           GlobalValue::PrivateLinkage, // linkage type
-          enter_data,                  // initializer
-          "");                         // name
+          enter_data);                 // initializer
       GlobalVariable* exit_var = new GlobalVariable(
           M,                           // module
           exit_data->getType(),        // type
           true,                        // is constant?
           GlobalValue::PrivateLinkage, // linkage type
-          exit_data,                   // initializer
-          "");                         // name
+          exit_data);                  // initializer
 
       // get pointers to strings for parameters to checkpoint calls
       Constant* zero = ConstantInt::get(IntegerType::get(Mc, 1), 0); // get the zero constant for this module
