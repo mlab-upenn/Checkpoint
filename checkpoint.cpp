@@ -24,6 +24,7 @@
 #include "llvm/IR/Constants.h"         // ConstantDataArray, ConstantInt, ConstantExpr
 #include "llvm/Transforms/Custom.h"    // createCheckpointPass declaration
 #include "llvm/IR/GlobalVariable.h"    // GlobalVariable
+#include "llvm/ADT/StringMap.h"        // string map container
 using namespace llvm;
 
 namespace {
@@ -35,6 +36,7 @@ namespace {
     Constant* enter_string; // arguments to checkpoint function
     Constant* exit_string;
     std::vector<Constant*> idx; // indexes for getting pointers to data
+    StringMap<Constant*> name_parameters; // maps function names to global vars containing the name
 
   public: 
     static char ID; // Pass identification, replacement for typeid
@@ -82,6 +84,23 @@ namespace {
       idx.push_back(zero);
       enter_string = ConstantExpr::getGetElementPtr(enter_var, idx); // get a pointer to the start of enter string
       exit_string = ConstantExpr::getGetElementPtr(exit_var, idx); // get a pointer to the start of exit string
+      
+      // add global strings for function names
+      for (Module::iterator f = M.getFunctionList().begin(),
+           end = M.getFunctionList().end();
+           f != end;
+           ++f ) {
+        Constant* name_data = ConstantDataArray::getString(Mc, f->getName()); // get string data from name
+        GlobalVariable* name_var = new GlobalVariable(
+            M,
+            name_data->getType(),
+            true,
+            GlobalValue::PrivateLinkage,
+            name_data);
+        Constant* name_string = ConstantExpr::getGetElementPtr(name_var, idx);
+        name_parameters.insert(std::pair<StringRef, Constant*>(f->getName(), name_string));
+      }
+      
       return true;                                                                                 // we modified the program
     }
 
