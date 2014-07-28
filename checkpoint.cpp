@@ -90,6 +90,7 @@ namespace {
            end = M.getFunctionList().end();
            f != end;
            ++f ) {
+        if (f->empty()) continue; // only get names for defined functions
         Constant* name_data = ConstantDataArray::getString(Mc, f->getName()); // get string data from name
         GlobalVariable* name_var = new GlobalVariable(
             M,
@@ -98,7 +99,8 @@ namespace {
             GlobalValue::PrivateLinkage,
             name_data);
         Constant* name_string = ConstantExpr::getGetElementPtr(name_var, idx);
-        name_parameters.insert(std::pair<StringRef, Constant*>(f->getName(), name_string));
+        name_parameters.insert(
+            std::pair<StringRef, Constant*>(f->getName(), name_string));
       }
       
       return true;                                                                                 // we modified the program
@@ -108,12 +110,11 @@ namespace {
       if (F.hasInternalLinkage()) return false;                               // only instrument functions present in the source.
       DEBUG(dbgs() << "Adding checkpoints to " << F.getName() << "\n");       // conditionally included on debug builds
       
-      // make function name string parameter
-      auto fname = F.getName();
-      auto & fctx = F.getContext();
-      Constant* fname_data = ConstantDataArray::getString(fctx, fname);
-      Constant* fname_string = ConstantExpr::getGetElementPtr(fname_data, idx);
-      
+      // get function name string parameter
+      assert(name_parameters.count(F.getName()) == 1 &&
+          "Function name not in global array map");
+      Constant* fname_string = name_parameters[F.getName()];
+
       // get call insertion points
       Instruction* first_insn = F.front().getFirstNonPHI();                   // get the first instruction of the function
       std::vector<Instruction*> returns;
@@ -122,12 +123,12 @@ namespace {
       }
       
       // insert calls
+      if (F.getName() == "main")                                              // if we're in the main function
+        CallInst::Create(init_func, "", first_insn);                          // insert the init call
       CallInst::Create(checkpoint_func,                                       // insert call at start of function
                       {enter_string, fname_string},
                       "",
                       first_insn);
-      if (F.getName() == "main")                                              // if we're in the main function
-        CallInst::Create(init_func, "", first_insn);                          // also insert the init call
       for (auto ret = returns.begin(); ret != returns.end(); ++ret) {         // for each return instruction
         CallInst::Create(checkpoint_func,                                     // insert a checkpoint before the return
                         {exit_string, fname_string},
