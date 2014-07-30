@@ -17,7 +17,7 @@ some modifications detailed [here](http://uu-kk.blogspot.com/2012/02/llvm-pass\
 the checkpoint API, which is constantly evolving to provide more information to
 the runtime library.  Currently, the checkpoint API consists of three callbacks:
 
-```
+```C
 void initialize()
 void checkpoint(const char *, const char *)
 void print_results()
