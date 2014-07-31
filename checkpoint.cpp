@@ -148,3 +148,14 @@ INITIALIZE_PASS(Checkpoint, "checkpoint", "checkpoint instrumentation for runtim
 FunctionPass* llvm::createCheckpointPass() {
   return new Checkpoint();
 }
+
+#include "llvm/InitializePasses.h"
+#include "llvm-c/Initialization.h"
+
+void llvm::initializeCheckpoint(PassRegistry &Registry) {
+  initializeCheckpointPass(Registry);
+}
+
+void LLVMInitializeCheckpoint(LLVMPassRegistryRef R) {
+  initializeCustom(*unwrap(R));
+}
