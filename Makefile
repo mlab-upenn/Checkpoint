@@ -8,7 +8,7 @@
 ##===----------------------------------------------------------------------===##
 
 LEVEL = ../../..
-LIBRARYNAME = LLVMCheckpoint
-BUILD_ARCHIVE = 1
+LIBRARYNAME = Checkpoint
+LOADABLE_MODULE = 1
 
 include $(LEVEL)/Makefile.common

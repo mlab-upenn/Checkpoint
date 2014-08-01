@@ -1,3 +1,3 @@
-add_llvm_library( LLVMCheckpoint
+add_llvm_loadable_module( Checkpoint
   checkpoint.cpp
   )

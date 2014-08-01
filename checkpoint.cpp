@@ -22,7 +22,6 @@
 #include "llvm/Support/Debug.h"        // DEBUG(), bdgs()
 #include "llvm/IR/Module.h"            // getOrInsertFunction
 #include "llvm/IR/Constants.h"         // ConstantDataArray, ConstantInt, ConstantExpr
-#include "llvm/Transforms/Checkpoint.h"// createCheckpointPass declaration
 #include "llvm/IR/GlobalVariable.h"    // GlobalVariable
 #include "llvm/ADT/StringMap.h"        // string map container
 using namespace llvm;
@@ -40,9 +39,7 @@ namespace {
 
   public: 
     static char ID; // Pass identification, replacement for typeid
-    Checkpoint() : FunctionPass(ID) {
-      initializeCheckpointPass(*PassRegistry::getPassRegistry());
-    }
+    Checkpoint() : FunctionPass(ID) {}
 
     // makes sure there are declarations for the profiling calls in this module
     virtual bool doInitialization(Module & M) {
@@ -143,15 +140,4 @@ namespace {
 }
 
 char Checkpoint::ID = 0;
-INITIALIZE_PASS(Checkpoint, "checkpoint", "checkpoint instrumentation for runtime profiling", true, false);
-
-FunctionPass* llvm::createCheckpointPass() {
-  return new Checkpoint();
-}
-
-#include "llvm-c/Initialization.h"
-#include "llvm/IR/DataLayout.h"
-
-void LLVMInitializeCheckpointPass(LLVMPassRegistryRef R) {
-  initializeCheckpointPass(*unwrap(R));
-}
+static RegisterPass<Checkpoint> tmp("checkpoint", "checkpoint instrumentation for runtime profiling");
