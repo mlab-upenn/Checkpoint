@@ -5,7 +5,7 @@ including Checkpoint in a statically-linked build of opt. In the future, I hope
 to include instructions for building a standalone Checkpoint executable.
 
 The instructions for building a plugin come mostly from LLVM's own pass building
-tutorial, found [online](llvm.org/docs/WritingAnLLVMPass.html) or included with
+tutorial, found [online](http://llvm.org/docs/WritingAnLLVMPass.html) or included with
 the LLVM soruce. Instructions for building a static library for linking into opt
 or a standalone tool come from a combination of the aformentioned tutorial, and
 a [blog post](http://tinyurl.com/7akkcbc) on the topic. Most of the information
@@ -17,7 +17,7 @@ time of writing.
 
 ### Getting the Sources ###
 
-1. Download the LLVM source from [here](llvm.org/releases/download.html) or with
+1. Download the LLVM source from [here](http://llvm.org/releases/download.html) or with
 `wget http://llvm.org/releases/3.4.2/llvm-3.4.2.src.tar.gz`.
 2. Extract with `tar -xf llvm-3.4.2.src.tar.gz`
 3. Navigate to `lib/Transforms` in the LLVM source tree.
