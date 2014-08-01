@@ -12,11 +12,11 @@ the runtime to do basic initialization and cleanup.
 
 Consult the LLVM docs to get up and running with compiling LLVM passes. This
 pass compiles using the same steps presented in the "Hello World" example, with
-some modifications detailed [here](http://uu-kk.blogspot.com/2012/02/llvm-pass\
--on-windows-integrating-with.html). Detailed build instructions are available
-in the `INSTALL.md` file. Finished client programs need to implement the
-checkpoint API, which is constantly evolving to provide more information to the
-runtime library. Currently, the checkpoint API consists of three callbacks:
+some modifications detailed [here](http://tinyurl.com/7akkcbc). Detailed build
+instructions are available in the `INSTALL.md` file. Finished client programs
+need to implement the checkpoint API, which is constantly evolving to provide
+more information to the runtime library. Currently, the checkpoint API consists
+of three callbacks:
 
 ```C
 void initialize()

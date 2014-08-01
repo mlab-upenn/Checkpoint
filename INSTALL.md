@@ -8,9 +8,9 @@ The instructions for building a plugin come mostly from LLVM's own pass building
 tutorial, found [online](llvm.org/docs/WritingAnLLVMPass.html) or included with
 the LLVM soruce. Instructions for building a static library for linking into opt
 or a standalone tool come from a combination of the aformentioned tutorial, and
-a [blog post](http://uu-kk.blogspot.com/2012/02/llvm-pass-on-windows-integratin\
-g-with.html) on the topic. Most of the information is reproduced here directly
-in the event that the remote resorces become unavailable.
+a [blog post](http://tinyurl.com/7akkcbc) on the topic. Most of the information
+is reproduced here directly in the event that the remote resorces become
+unavailable.
 
 This guide was tested on LLVM 3.4.2, the latest (stable) version of LLVM at the
 time of writing.
