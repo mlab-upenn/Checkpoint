@@ -32,30 +32,49 @@ configure script or with `cmake`.
 mkdir ../build
 cd ../build
 ```
-and `cmake ../llvm/` or `../llvm/configure`. Build LLVM with `make`.
+and `cmake ../llvm/` or `../llvm/configure`.
 
-### Getting the Sources ###
+Build LLVM and run the testsuite. Both of these operations will take a while, so
+be patient. On [multicore](https://en.wikipedia.org/wiki/Multicore_processor),
+[superthreading](https://en.wikipedia.org/wiki/Super-threading), or
+[SMT](http://en.wikipedia.org/wiki/Simultaneous_multithreading) machines,
+supplying `make` with the `-j` flag can significantly improve compile time by
+splitting the build into multiple jobs.
+```
+make -j
+make check
+```
 
-1. Download the LLVM source from [here](http://llvm.org/releases/download.html)
-or with `wget http://llvm.org/releases/3.4.2/llvm-3.4.2.src.tar.gz`.
-2. Extract with `tar -xf llvm-3.4.2.src.tar.gz`
-3. Navigate to `lib/Transforms` in the LLVM source tree.
-4. Clone the Checkpoint repository with
-`git clone https://github.com/mlab/Checkpoint.git`
+If you're on a UNIX-like system, used cmake in the previous steps, and are
+getting compiler errors, it could be that the POSIX-standard compiler `c++` is
+old, which cmake uses by defualt. Make sure you've installed a recent version of
+clang and point the `c++` link to wherever `clang++` is installed. For example,
+on Ubuntu you can do `sudo update-alternatives --config c++` and select
+/usr/bin/clang++ from the table.
+
+If you want to reference llvm without supplying full paths, you can install
+LLVM tools and libraries with `make install`.
 
 ### Building Checkpoint as a plugin ###
 
-1. Checkout the `dll` branch with `git checkout dll`. This branch is prepped
-for creating a plugin for opt, while the `master` branch is prepped for building
-a static library.
-2. Modify the build files in `lib/Transforms` so Checkpoint is build along with
+Navigate back to the source tree, clone Checkpoint and checkout the `plugin`
+branch. This branch contains changes to make Checkpoint suitable for building as
+a plugin. We'll set up Checkpoint in `lib/Transforms`, a common location for
+building opt passes.
+```
+cd ~/llvm/lib/Transforms
+git clone https://github.com/mlab/Checkpoint.git
+cd Checkpoint
+git checkout plugin
+```
+Modify the build files in `lib/Transforms` so Checkpoint is build along with
 the other plugins.
-    * In `LLVMBuild.txt`, add `Checkpoint` to the list of subdirectories.
-    * In `CMakeLists.txt`, add an `add_subdirectory(Checkpoint)` entry.
-    * In `Makefile`, add `Checkpoint` to the list of `PARALLEL_DIRS`.
-3. Create a build directory, `mkdir ~/llvm-build`, and run the configure script
-from the source directory in the new build directory:
-`cd llvm-build && ../path/to/configure`.  Alternatively, you can use cmake
-instead: `cd llvm-build && cmake ../path/to/source`. Check out the LLVM getting
-started guide for build options that can be used with configure or cmake.
-4. 
+* In `LLVMBuild.txt`, add `Checkpoint` to the list of subdirectories.
+* In `CMakeLists.txt`, add an `add_subdirectory(Checkpoint)` entry.
+* In `Makefile`, add `Checkpoint` to the list of `PARALLEL_DIRS`.
+
+Navigate back to `~/build/lib/Transforms` and run `make` to build Checkpoint. If
+you used cmake and you're getting compiler erros, see the note above about
+updating your POSIX compiler link.
+
+### Building Checkpoint into opt ###
