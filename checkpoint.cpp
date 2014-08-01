@@ -22,7 +22,7 @@
 #include "llvm/Support/Debug.h"        // DEBUG(), bdgs()
 #include "llvm/IR/Module.h"            // getOrInsertFunction
 #include "llvm/IR/Constants.h"         // ConstantDataArray, ConstantInt, ConstantExpr
-#include "llvm/Transforms/Custom.h"    // createCheckpointPass declaration
+#include "llvm/Transforms/Checkpoint.h"// createCheckpointPass declaration
 #include "llvm/IR/GlobalVariable.h"    // GlobalVariable
 #include "llvm/ADT/StringMap.h"        // string map container
 using namespace llvm;
@@ -151,6 +151,7 @@ FunctionPass* llvm::createCheckpointPass() {
 
 #include "llvm/InitializePasses.h"
 #include "llvm-c/Initialization.h"
+#include "llvm/IR/DataLayout.h"
 
 void llvm::initializeCheckpoint(PassRegistry &Registry) {
   initializeCheckpointPass(Registry);
