@@ -31,9 +31,9 @@ for creating a plugin for opt, while the `master` branch is prepped for building
 a static library.
 2. Modify the build files in `lib/Transforms` so Checkpoint is build along with
 the other plugins.
-  * In `LLVMBuild.txt`, add `Checkpoint` to the list of subdirectories.
-  * In `CMakeLists.txt`, add an `add_subdirectory(Checkpoint)` entry.
-  * In `Makefile`, add `Checkpoint` to the list of `PARALLEL_DIRS`.
+    * In `LLVMBuild.txt`, add `Checkpoint` to the list of subdirectories.
+    * In `CMakeLists.txt`, add an `add_subdirectory(Checkpoint)` entry.
+    * In `Makefile`, add `Checkpoint` to the list of `PARALLEL_DIRS`.
 3. Create a build directory, `mkdir ~/llvm-build`, and run the configure script
 from the source directory in the new build directory:
 `cd llvm-build && ../path/to/configure`.  Alternatively, you can use cmake
