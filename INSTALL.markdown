@@ -12,8 +12,27 @@ aformentioned tutorial, and a [blog post](http://tinyurl.com/7akkcbc) on the
 topic. Most of the information is reproduced here directly in the event that the
 remote resorces become unavailable.
 
-This guide was tested on LLVM 3.4.2, the latest (stable) version of LLVM at the
-time of writing.
+This guide is written for commit `50f2f1434c74cc5ba20008bd097421a28d0f0738` on
+the LLVM github mirror. It will be revised for stable LLVM 3.5 and future
+versions of LLVM when they become available.
+
+### Getting and building LLVM ###
+
+You'll need Python, Git, a C/C++ compiler toolchain, and either gmake or cmake
+for this part. The rest of this guide will assume you've started this process in
+your home directory `~\`. First, get the LLVM source.
+```
+git clone https://github.com/llvm-mirror/llvm.git
+cd llvm
+git checkout 50f2f1
+```
+Make a build directory and generate build files using either the provided
+configure script or with `cmake`.
+```
+mkdir ../build
+cd ../build
+```
+and `cmake ../llvm/` or `../llvm/configure`. Build LLVM with `make`.
 
 ### Getting the Sources ###
 
