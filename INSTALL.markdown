@@ -8,7 +8,7 @@ The instructions for building a plugin come mostly from LLVM's own pass building
 tutorial, found [online](http://llvm.org/docs/WritingAnLLVMPass.html) or
 included with the LLVM soruce. Instructions for building a static library for
 linking into opt or a standalone tool come from a combination of the
-aformentioned tutorial, and a [blog post](http://tinyurl.com/7akkcbc) on the
+aformentioned tutorial and a [blog post](http://tinyurl.com/7akkcbc) on the
 topic. Most of the information is reproduced here directly in the event that the
 remote resorces become unavailable.
 
@@ -18,7 +18,7 @@ versions of LLVM when they become available.
 
 ### Getting and building LLVM ###
 
-You'll need Python, Git, a C/C++ compiler toolchain, and either gmake or cmake
+You'll need Python, Git, the Clang compiler toolchain, and either gmake or cmake
 for this part. The rest of this guide will assume you've started this process in
 your home directory `~\`. First, get the LLVM source.
 ```
@@ -32,7 +32,11 @@ configure script or with `cmake`.
 mkdir ../build
 cd ../build
 ```
-and `cmake ../llvm/` or `../llvm/configure`.
+and `cmake ../llvm/` or `../llvm/configure`. If you're planning on installing
+your copy of LLVM, look up the proper flags for configure or cmake for
+optimizing LLVM, as the default build is unoptimized and runs very slowly.
+The cmake files and the output from `../llvm/configure --help` will contain the
+flags for an optimized build.
 
 Build LLVM and run the testsuite. Both of these operations will take a while, so
 be patient. On [multicore](https://en.wikipedia.org/wiki/Multicore_processor),
