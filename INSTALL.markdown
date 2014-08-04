@@ -95,7 +95,6 @@ cd ~/llvm/lib/Transforms
 git clone https://github.com/mlab/Checkpoint.git
 ```
 Modify the build files in `lib/Transforms` just as you did in the plugin build.
-Building. 
 
 First, we must create a header file in `include/llvm/Transforms`, Checkpoint.h:
 ```C++
