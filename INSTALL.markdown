@@ -1,4 +1,4 @@
-# Building Checkpoint #
+# Installing Checkpoint #
 
 This file details building Checkpoint as a plugin to LLVM's opt tool as well as
 including Checkpoint in a statically-linked build of opt. In the future, I hope
@@ -129,3 +129,5 @@ opt now depends on Checkpoint.
 * in `CMakeLists.txt`, add `Checkpoint` to `LLVM_LINK_COMPONENTS`.
 
 Note the capitalization of Checkpoint used in each instance above.
+
+### Using Checkpoint ###
