@@ -69,6 +69,7 @@ git checkout plugin
 ```
 Modify the build files in `lib/Transforms` so Checkpoint is build along with
 the other plugins.
+
 * In `LLVMBuild.txt`, add `Checkpoint` to the list of subdirectories.
 * In `CMakeLists.txt`, add an `add_subdirectory(Checkpoint)` entry.
 * In `Makefile`, add `Checkpoint` to the list of `PARALLEL_DIRS`.
