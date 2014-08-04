@@ -131,3 +131,11 @@ opt now depends on Checkpoint.
 Note the capitalization of Checkpoint used in each instance above.
 
 ### Using Checkpoint ###
+
+Use Checkpoint like any other opt pass. If you built Checkpoint as a plugin,
+use opt's `-load` flag to specify the location of checkpoint, and `-checkpoint`
+to enable the pass itself:
+
+`cat infile.bc | opt -load /path/to/Checkpoint.so -checkpoint -o outfile.bc`
+
+If you linked Checkpoint into opt statically, you should omit the `-load` flag.
