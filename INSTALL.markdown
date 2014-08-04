@@ -1,4 +1,4 @@
-# Building Checkpoint #
+# Installing Checkpoint #
 
 This file details building Checkpoint as a plugin to LLVM's opt tool as well as
 including Checkpoint in a statically-linked build of opt. In the future, I hope
@@ -95,7 +95,6 @@ cd ~/llvm/lib/Transforms
 git clone https://github.com/mlab/Checkpoint.git
 ```
 Modify the build files in `lib/Transforms` just as you did in the plugin build.
-Building. 
 
 First, we must create a header file in `include/llvm/Transforms`, Checkpoint.h:
 ```C++
@@ -130,3 +129,13 @@ opt now depends on Checkpoint.
 * in `CMakeLists.txt`, add `Checkpoint` to `LLVM_LINK_COMPONENTS`.
 
 Note the capitalization of Checkpoint used in each instance above.
+
+### Using Checkpoint ###
+
+Use Checkpoint like any other opt pass. If you built Checkpoint as a plugin,
+use opt's `-load` flag to specify the location of checkpoint, and `-checkpoint`
+to enable the pass itself:
+
+`cat infile.bc | opt -load /path/to/Checkpoint.so -checkpoint -o outfile.bc`
+
+If you linked Checkpoint into opt statically, you should omit the `-load` flag.
