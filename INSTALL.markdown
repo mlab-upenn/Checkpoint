@@ -79,3 +79,50 @@ you used cmake and you're getting compiler erros, see the note above about
 updating your POSIX compiler link.
 
 ### Building Checkpoint into opt ###
+
+Building Checkpoint into opt requires modifying some LLVM internal headers and
+the opt source so Checkpoint is linked when opt is build. Additionally,
+Checkpoint must export some initialization routines for use by opt. All the
+necessary changes to Checkpoint are in the master branch.
+
+First, clone Checkpoint into the LLVM source tree
+```
+cd ~/llvm/lib/Transforms
+git clone https://github.com/mlab/Checkpoint.git
+```
+Modify the build files in `lib/Transforms` just as you did in the plugin build.
+Building. 
+
+First, we must create a header file in `include/llvm/Transforms`, Checkpoint.h:
+```C++
+#ifndef LLVM_CHECKPOINT_H
+#define LLVM_CHECKPOINT_H
+
+namespace llvm {
+    FunctionPass* createCheckpointPass();
+}
+
+#endif
+```
+
+Now modify the header files in `include/llvm` so opt gets the proper
+initialization declarations.
+
+* in `InitializePasses.h`, add `void initializeCheckpointPass(PassRegistry&);`
+to the `llvm` namespace.
+* in `LinkAllPasses.h`, add `#include "llvm/Transforms/Checkpoint.h"` to the
+includes list.
+* in `LinkAllPasses.h`, add `(void) llvm::createCheckpointPass();` to the
+`ForcePassLinking` routine.
+
+Now, we'll modifty opt to initialize Checkpoint. Edit `tools/opt/opt.cpp` and
+add `initializeCheckpointPass(Registry);` among the other pass initialization
+calls.
+
+Finally, modify the build files in `tools/opt` to let the build system know that
+opt now depends on Checkpoint.
+
+* in `Makefile`, add `checkpoint` to `LINK_COMPONENTS`.
+* in `CMakeLists.txt`, add `Checkpoint` to `LLVM_LINK_COMPONENTS`.
+
+Note the capitalization of Checkpoint used in each instance above.
