@@ -86,12 +86,9 @@ namespace {
       exit_string = ConstantExpr::getGetElementPtr(exit_var, idx); // get a pointer to the start of exit string
       
       // add global strings for function names
-      for (Module::iterator f = M.getFunctionList().begin(),
-           end = M.getFunctionList().end();
-           f != end;
-           ++f ) {
-        if (f->empty()) continue; // only get names for defined functions
-        Constant* name_data = ConstantDataArray::getString(Mc, f->getName()); // get string data from name
+      for (Function& f : M.getFunctionList()) {
+        if (f.empty()) continue; // only get names for defined functions
+        Constant* name_data = ConstantDataArray::getString(Mc, f.getName()); // get string data from name
         GlobalVariable* name_var = new GlobalVariable(
             M,
             name_data->getType(),
@@ -100,7 +97,7 @@ namespace {
             name_data);
         Constant* name_string = ConstantExpr::getGetElementPtr(name_var, idx);
         name_parameters.insert(
-            std::pair<StringRef, Constant*>(f->getName(), name_string));
+            std::pair<StringRef, Constant*>(f.getName(), name_string));
       }
       
       return true;                                                                                 // we modified the program
@@ -118,8 +115,10 @@ namespace {
       // get call insertion points
       Instruction* first_insn = F.front().getFirstNonPHI();                   // get the first instruction of the function
       std::vector<Instruction*> returns;
-      for (inst_iterator I = inst_begin(F); I != inst_end(F); ++I) {
-        if (isa<ReturnInst>(&*I)) returns.push_back(&*I);                     // fill a vector with all the return instructions
+      for (BasicBlock& bb : F) {                                              // for each basic block in the function,
+        Instruction* i = bb.getTerminator();
+        assert(terminator && "Malformed Basic Block");
+        if (isa<ReturnInst>(i)) returns.push_back(i);                         // if the terminator is a return, store it.
       }
       
       // insert calls
@@ -129,13 +128,13 @@ namespace {
                       {enter_string, fname_string},
                       "",
                       first_insn);
-      for (auto ret = returns.begin(); ret != returns.end(); ++ret) {         // for each return instruction
+      for (Instruction* ret : returns) {                                      // for each return instruction
         CallInst::Create(checkpoint_func,                                     // insert a checkpoint before the return
                         {exit_string, fname_string},
                         "",
-                        *ret);
+                        ret);
         if (F.getName() == "main")                                            // if we're in the main function
-          CallInst::Create(deinit_func, "", *ret);                            // also insert a deinit before the return
+          CallInst::Create(deinit_func, "", ret);                             // also insert a deinit before the return
       }
       return true;                                                            // we modified the program
     }
