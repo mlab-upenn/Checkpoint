@@ -40,7 +40,11 @@ float function() {
   return number;
 }
 ```
+The `__attribute__` above the number declaration designates that number with a
+string that can be recovered in LLVM. Below is a diff of the corresponding LLVM
+code for the function above, with and without the attribute line.
 
+<img src="LLVM">
 
 ### Compilation Process ###
 
