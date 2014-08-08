@@ -44,7 +44,7 @@ The `__attribute__` above the number declaration designates that number with a
 string that can be recovered in LLVM. Below is a diff of the corresponding LLVM
 code for the function above, with and without the attribute line.
 
-![llvmdiff](/docs/llvmdiff.png)
+![llvmdiff](http://i57.tinypic.com/2uq0ilf.png)
 
 Notice how the inclusion of the annotation added an LLVM intrinsic right before
 our use of `number`, with a reference to the string we included. This addition
