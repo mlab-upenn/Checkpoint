@@ -58,10 +58,60 @@ a section of the program and generate estimation-quality implementations of
 that section as an alternate execution path. For an algorithm that already has
 anytime properties, the estimation-quality path might set a single quality
 metric low, while the precision-quality path might set the quality metric high.
-`EXAMPLE OF LLVM ALTERNATE STORE PATTERN`
+On the program above, we might generate a transformation like this:
+```
+declare i8 @check_anytime(...)
+
+define float @function() {
+  %1 = call i8 @check_anytime()
+  %2 = icmp eq i8 %1, 0
+  %out = select i1 %2, float 0x3FCC8E8A80000000, float 0x40D388CD80000000
+  ret %out
+}
+```
+Here, instead of returning a single number, we select between two numbers based
+on the response from some decision-making function. The number we return could
+represent a framerate, recursion depth, or some other natrual anytime control
+parameter.
+
 For algorithms that are not anytime by design, we can generate our own
-estimation versions using techniques like loop perforation.
-`EXAMPLE OF LLVM LOOP PERFORATION`
+estimation versions using techniques like loop perforation. Take this example
+program:
+```
+void function(float array[], int size) {
+  for (int i = 0; i < size; i++)
+    array[i] = array[i] / 2;
+}
+```
+This example translates to the LLVM code below.
+```
+define void @function(float* %array, i32 %size) {
+  %1 = icmp sgt i32 %size, 0
+  br i1 %1, label %.lr.ph, label %._crit_edge
+
+.lr.ph:
+  %i.01 = phi i32 [ %5, %.lr.ph ], [ 0, %0 ]
+  %2 = getelementptr float* %array, i32 %i.01
+  %3 = load float* %2, align 4, !tbaa !1
+  %4 = fmul float %3, 5.000000e-01
+  store float %4, float* %2, align 4, !tbaa !1
+  %5 = add nsw i32 %i.01, 1
+  %6 = icmp slt i32 %5, %size
+  br i1 %6, label %.lr.ph, label %._crit_edge
+
+._crit_edge:
+  ret void
+} 
+```
+On each iteration of the loop, it loads a float value from the array, divides by
+2, stores it back, adds 1 to the current index, and branches if the new index is
+less than `%size`. Many computations of this form can produce results of
+acceptable quality even when iterations of the loop are skipped
+([note](people.csail.mit.edu/rinard/paper/sas11.pdf)). We can change the `add`
+instruction that increments the loop counter from `%5 = add nsw i32 %i.01, 1` to
+`%5 = add nsw i32 %i.01, 2` to skip every other iteration of the loop. The
+resulting loop can have better performance at the expense of imprecision, and
+might be a beneficial alternative in time-constrained situations.
 
 The program itself doens't choose which execution path to take; that decision
 is delegated to a separate controller program which communicates with the main
@@ -69,9 +119,16 @@ program through some IPC mechanism. After generating the alternate execution
 paths in the main program, we instrument the main program with IPC calls to the
 controller at the start of each set of alternate paths. The main program then
 chooses one of the alternate paths based on a response from the controller
-program.
-`EXMAPLE OF IPC CALL INSERTION`
-
+program. In the loop perforation example, we'd make an additional transformation
+to get the loop increment from an external source.
+```
+%5 = add nsw i32 %i.01, 1
+```
+becomes
+```
+%choice = call i32 @get_anytime_choice()
+%5 = add nsw i32 $i.01, i32 %choice
+```
 One way for the controller to choose the alternate path directly is to implement
 the alternate paths as separate functions, with the controller swapping in and
 out calls to the various implementations transparently. This has the advantage
