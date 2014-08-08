@@ -133,9 +133,44 @@ One way for the controller to choose the alternate path directly is to implement
 the alternate paths as separate functions, with the controller swapping in and
 out calls to the various implementations transparently. This has the advantage
 of requiring less transformation to the main program, but limits the scope of
-the possible alternative paths.
-`EXAMLE OF FUNCTION SWAP`
+the possible alternative paths. Given a program with a plain function call:
+```C
+...
+void function(&data, 100);
+...
+```
+We transform our call like so:
+```
+extern void (*fp)(void*, int);
+...
+get_lock(fp_lock);
+void (*call)(void*, int) = fp;
+release_lock(fp_lock);
+call($data, 100);
+```
+In addition to the call transformation, we run a controller that sets `fp`,
+effectively choosing the execution path of the main thread. The various
+implementations available to the controller can be generated with the same
+anytime transformations used in the previous example.
+```
+void (*fp)(void*, int);
 
+void impl1(void * data, int size) { ... }
+void impl2(void * data, int size) { ... }
+void impl3(void * data, int size) { ... }
+
+void control_loop() {
+  if (decision_logic) {
+    get_lock(fp_lock);
+    fp = &impl1;
+  }
+  else {
+    get_lock(fp_lock);
+    fp = &impl2;
+  }
+  release_lock(fp_lock);
+}
+```
 Finally, the controller needs to measure the resource consumption and output of
 the main program to make informed decisions about alternate execution paths.
 This necessitates a further set of transformations to the main program that
