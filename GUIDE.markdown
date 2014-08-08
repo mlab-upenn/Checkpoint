@@ -28,10 +28,19 @@ opportunities for anytime adaptation identified and annotated. Because these
 annotations will be used to guide programmatic transformation of the input
 program, they must be machine-readable in some way. Our current tools leverage
 the LLVM suite, so candidate annotation techniques need to interoperate with
-LLVM easily. One candidate annotation technique (for C and C++ programs) is the
-GNU annotate attribute.
+LLVM easily.
 
-` ADD EXAMPLE HERE `
+One candidate annotation technique (for C and C++ programs) is the
+GNU annotate attribute. Consider the C source code:
+```C
+float function() {
+  __attribute__((annotate("My number!")))
+  float number;
+  number = 2e4 + 3.21;
+  return number;
+}
+```
+
 
 ### Compilation Process ###
 
