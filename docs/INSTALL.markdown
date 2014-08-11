@@ -12,9 +12,9 @@ aformentioned tutorial and a [blog post](http://tinyurl.com/7akkcbc) on the
 topic. Most of the information is reproduced here directly in the event that the
 remote resorces become unavailable.
 
-This guide is written for commit `50f2f1434c74cc5ba20008bd097421a28d0f0738` on
-the LLVM github mirror. It will be revised for stable LLVM 3.5 and future
-versions of LLVM when they become available.
+This guide is written for the `release_35` branch on the LLVM git mirror. It
+will be revised for stable LLVM 3.5 and future versions of LLVM when they
+become available.
 
 ### Getting and building LLVM ###
 
@@ -24,7 +24,7 @@ your home directory `~\`. First, get the LLVM source.
 ```
 git clone https://github.com/llvm-mirror/llvm.git
 cd llvm
-git checkout 50f2f1
+git checkout release_35
 ```
 Make a build directory and generate build files using either the provided
 configure script or with `cmake`.
