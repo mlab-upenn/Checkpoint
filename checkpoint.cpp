@@ -116,7 +116,7 @@ namespace {
       std::vector<Instruction*> returns;
       for (BasicBlock& bb : F) {                                              // for each basic block in the function,
         Instruction* i = bb.getTerminator();
-        assert(terminator && "Malformed Basic Block");
+        assert(i && "Malformed Basic Block");
         if (isa<ReturnInst>(i)) returns.push_back(i);                         // if the terminator is a return, store it.
       }
       
