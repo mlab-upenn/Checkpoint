@@ -77,7 +77,7 @@ parameter.
 For algorithms that are not anytime by design, we can generate our own
 estimation versions using techniques like loop perforation. Take this example
 program:
-```
+```C
 void function(float array[], int size) {
   for (int i = 0; i < size; i++)
     array[i] = array[i] / 2;
@@ -180,7 +180,22 @@ function call and return. These hooks could be used to send messages to the
 controller about the runtime of each function as soon as that function exits,
 allowing the controller to make decisions based on the running time for each
 alternate execution path.
-`EXAMPLE OF CHECKPOINT`
+
+Again, let's revisit the example function:
+```C
+void function(float array[], int size) {
+  for (int i = 0; i < size; i++)
+    array[i] = array[i] / 2;
+}
+```
+And here is a diff of the function's LLVM code, with and without the hooks.
+
+![checkpointdiff](http://i61.tinypic.com/2ai4zr8.png)
+
+the LLVM pass inserts the calls to checkpoint with string parameters indicating
+the function name and whether we are entering or exiting the function.
+Additionally, if we're instrumenting the "main" function, calls to init and
+deinit functions are inserted as well. 
 
 The overall goal of the compile-time process is to take a single-strategy
 program and turn it into a multiple-strategy program that communicates with
