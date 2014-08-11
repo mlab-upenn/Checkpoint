@@ -17,7 +17,7 @@
 #include "llvm/Pass.h"
 #include "llvm/Support/raw_ostream.h"
 #include "llvm/IR/Instructions.h"      // CallInst
-#include "llvm/Support/InstIterator.h" // inst_iterator, methods on I and E
+#include "llvm/IR/InstIterator.h"      // Iteration over instructions
 #include "llvm/Support/Debug.h"        // DEBUG(), bdgs()
 #include "llvm/IR/Module.h"            // getOrInsertFunction
 #include "llvm/IR/Constants.h"         // ConstantDataArray, ConstantInt, ConstantExpr
