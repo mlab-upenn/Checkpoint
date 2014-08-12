@@ -1,4 +1,4 @@
-//===- Hello.cpp - Example code from "Writing an LLVM Pass" ---------------===//
+//===- Checkpoint.cpp - Pass for instrumenting code with callbacks --------===//
 //
 //                     The LLVM Compiler Infrastructure
 //
